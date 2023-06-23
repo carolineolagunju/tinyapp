@@ -2,7 +2,7 @@ const express = require('express');
 const app = express();
 const PORT = 8080;
 app.set("view engine", "ejs");
-app.use(express.urlencoded({extended:true}));''
+app.use(express.urlencoded({extended:true}));
 
 const urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
@@ -31,7 +31,7 @@ app.get("/urls.json", (req, res) => {
 
 //hello world page http://localhost:8080/hello
 app.get("/hello", (req, res) => {
-  res.send("<html><body>Hello <b>World</b></body></html>\n")
+  res.send("<html><body>Hello <b>World</b></body></html>\n");
 });
 
 //urls page
@@ -52,10 +52,20 @@ app.get("/urls/:id", (req, res) => {
 });
 
 //post route
-app.post('/urls', (req, res) => {
-  console.log(req.body);
-  res.send('Ok');
-})
+app.post("/urls", (req, res) => {
+  const longURL = req.body.longURL;
+  let randomId = generateRandomString();
+  urlDatabase[randomId] = longURL;
+  //update the redirection URL
+  res.redirect(`/urls/${randomId}`);
+});
+
+app.get("/u/:id", (req, res) => {
+  const shortId = req.params.id;
+  const longURL = urlDatabase[shortId];
+  res.redirect(longURL);
+});
+
 app.listen(PORT, () => {
   console.log(`Example app listening on PORT ${PORT}!`);
 });
