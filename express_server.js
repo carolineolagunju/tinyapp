@@ -69,7 +69,7 @@ app.post("/urls/:id/delete", (req, res) => {
     if (urlDatabase[url] === urlToDelete) {
       delete urlDatabase[url];
     } else {
-      console.log(urlDatabase[url]);
+      res.send(urlDatabase[url]);
     }
   }
   res.redirect("/urls");
