@@ -60,6 +60,23 @@ app.post("/urls", (req, res) => {
   res.redirect(`/urls/${randomId}`);
 });
 
+
+//This route deletes a specified url and redirects the page back to /urls
+app.post("/urls/:id/delete", (req, res) => {
+  const urlToDelete = urlDatabase[req.params.id];
+  //loop through the keys of urlDatabase
+  for (const url in urlDatabase) {
+    if (urlDatabase[url] === urlToDelete) {
+      delete urlDatabase[url];
+    } else {
+      console.log(urlDatabase[url]);
+    }
+  }
+  res.redirect("/urls");
+});
+
+
+//redirect
 app.get("/u/:id", (req, res) => {
   const shortId = req.params.id;
   const longURL = urlDatabase[shortId];
