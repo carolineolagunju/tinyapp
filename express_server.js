@@ -3,6 +3,8 @@ const app = express();
 const PORT = 8080;
 app.set("view engine", "ejs");
 app.use(express.urlencoded({extended:true}));
+const cookieParser = require('cookie-parser');
+app.use(cookieParser());
 
 
 // Database object
@@ -43,14 +45,15 @@ app.get("/hello", (req, res) => {
 
 //urls page
 app.get("/urls", (req, res) => {
-  const templateVars = {urls: urlDatabase};
+  const templateVars = {urls: urlDatabase, username: req.cookies["username"]};
   res.render("urls_index", templateVars);
 });
 
 
 //the form page
 app.get("/urls/new", (req, res) => {
-  res.render("urls_new");
+  const templateVars = {urls: urlDatabase, username: req.cookies["username"]};
+  res.render("urls_new", templateVars);
 });
 
 
@@ -75,7 +78,7 @@ app.post("/urls", (req, res) => {
 app.post("/urls/:id", (req, res) => {
   const urlToEdit = req.params.id;
   const newURL = req.body.newURL;
-  if(urlDatabase[urlToEdit]);
+  if (urlDatabase[urlToEdit]);
   urlDatabase[urlToEdit] = newURL;
   res.redirect("/urls");
 });
@@ -100,7 +103,7 @@ app.get("/u/:id", (req, res) => {
   res.redirect(longURL);
 });
 
-
+//user login
 app.post("/login", (req, res) => {
   const newUsername = req.body.username;
   //sets the username as a cookie

@@ -16,10 +16,8 @@
     />
     <title>TinyApp</title>
   </head>
-  <header>
-    <%- include('partials/_header') %>
-  </header>
   <body>
+    <%- include ('./partials/_header') %>
     <main style="margin: 1em;">
       <h3>My URLs</h3>
       <table class="table">
@@ -41,7 +39,6 @@
                 </button>
                 </td>
               </form>
-            </form>
             <form method="POST" action="/urls/<%= id %>/delete">
               <td><button type = "submit">Delete</button></td>
             </form>
@@ -49,9 +46,9 @@
           <% } %>
         </tbody>
       </table>
-      <div>
+      <!-- <div>
         <a href="#" class="btn btn-primary">Shorten a New URL</a>
-        </div>
+        </div> -->
     </main>
     <!-- Bootstrap JS -->
     <script
