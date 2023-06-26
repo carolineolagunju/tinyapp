@@ -103,11 +103,18 @@ app.get("/u/:id", (req, res) => {
   res.redirect(longURL);
 });
 
-//user login
+//user login route
 app.post("/login", (req, res) => {
   const newUsername = req.body.username;
   //sets the username as a cookie
   res.cookie('username', newUsername);
+  res.redirect("/urls");
+});
+
+
+//user logout route
+app.post("/logout", (req, res) => {
+  res.clearCookie("username");
   res.redirect("/urls");
 });
 

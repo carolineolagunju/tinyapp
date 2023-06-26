@@ -18,9 +18,10 @@
         <a class="nav-item nav-link" href="/urls/new">Create New URL</a>
       </div>
     </div>
-    <div>
+    <div class ="nav-item nav-link">
       <% if (username) { %>
-    <p>Logged in as: <%= username %></p>
+        <p>Logged in as: <%= username %></p>
+      </div>
     <form action="/logout" method="POST" class="nav-item">
       <button type="submit">
         LogOut
@@ -32,6 +33,5 @@
         <button type = "submit">login</button>
     </form>
     <% } %>
-  </div>
   </nav>
 </header>
