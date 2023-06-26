@@ -16,7 +16,6 @@ const urlDatabase = {
 const generateRandomString = function() {
   let output = "";
   const string = "abcdefghijklmnopqrstuvwxyz0123456789";
-
   for (let i = 0; i < 6; i++) {
     output += string.charAt(Math.floor(Math.random() * string.length));
   }
@@ -99,6 +98,14 @@ app.get("/u/:id", (req, res) => {
   const shortId = req.params.id;
   const longURL = urlDatabase[shortId];
   res.redirect(longURL);
+});
+
+
+app.post("/login", (req, res) => {
+  const newUsername = req.body.username;
+  //sets the username as a cookie
+  res.cookie('username', newUsername);
+  res.redirect("/urls");
 });
 
 
