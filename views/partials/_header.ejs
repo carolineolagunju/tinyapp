@@ -19,8 +19,8 @@
       </div>
     </div>
     <div class ="nav-item nav-link">
-      <% if (username) { %>
-        <p>Logged in as: <%= username %></p>
+      <% if (email) { %>
+        <p>Logged in as: <%= email %></p>
       </div>
     <form action="/logout" method="POST" class="nav-item">
       <button type="submit">
@@ -29,7 +29,7 @@
     </form>
     <% } else { %>
     <form action="/login" method = "POST">
-      <input type="text" name = "username" placeholder= "username" autocomplete="off">
+      <input type="text" name = "email" placeholder= "username" autocomplete="off">
         <button type = "submit">login</button>
     </form>
     <% } %>
