@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- Bootstrap CSS -->
+  <link
+  rel="stylesheet"
+  href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css"
+  integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS"
+  crossorigin="anonymous"/>
+  <title>Login</title>
+</head>
+<body>
+  <%- include ('./partials/_header') %>
+  <h3>Login</h3>
+  <form action="/login" method="POST" class="form-horizontal" style="margin: 1em">
+    <label for="Email">Email address</label>
+    <input type="email" placeholder="Enter email" name = "email" class="form-control" style="width:300px">
+    <label for="Password">Password</label>
+    <input type="password" placeholder="Password" name = "password" class="form-control" style="width:300px"><br><br>
+    <button type="submit" class="btn btn-outline-primary">Login</button>
+  </form> 
+</body>
+</html>

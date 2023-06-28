@@ -3,16 +3,23 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Document</title>
+    <!-- Bootstrap CSS -->
+    <link
+    rel="stylesheet"
+    href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css"
+    integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS"
+    crossorigin="anonymous"/>
+  <title>Register</title>
 </head>
 <body>
-</form>
-<form action="/register" method="POST">
-  <h3>Sign Up</h3>
-  <input type="email" placeholder="email" name = "email"><br><br>
-  <input type="password" placeholder="password" name = "password"><br><br>
-  <button type="submit">sign up</button>
-</form> 
+  <%- include ('./partials/_header') %>
+  <h3>Create Account </h3>
+  <form action="/register" method="POST" class="form-horizontal" style="margin: 1em">
+    <label for="Email">Email address</label>
+    <input type="email" placeholder="Enter email" name = "email"><br><br>
+    <label for="Password">Password</label>
+    <input type="password" placeholder="Password" name = "password"><br><br>
+    <button type="submit" class="btn btn-outline-primary">Register</button>
+  </form> 
 </body>
 </html>
-
