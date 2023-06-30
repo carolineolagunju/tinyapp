@@ -17,8 +17,10 @@
         <a style="color:white;" href="/register">Register</a>
       <%} else { %>
         <p>Logged in as: <%= user.email %></p>
-        <form action="/logout" method="POST" class="nav-item">
-          <button type="submit">LogOut</button>
+        <form action="/logout" method="POST" class="nav-item"> 
+          <button type="submit">LogOut</button> &nbsp;
+          <a style="color:white;" href="/login">Login</a> &nbsp;
+          <a style="color:white;" href="/register">Register</a>
         </form>
       <% } %>
     </div>
