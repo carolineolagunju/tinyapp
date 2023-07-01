@@ -6,50 +6,42 @@ app.set("view engine", "ejs");
 app.use(express.urlencoded({extended:true}));
 const cookieParser = require('cookie-parser');
 app.use(cookieParser());
+const bcrypt = require('bcryptjs');
 
 
 
 // url Database object
 const urlDatabase = {
-  "b2xVn2": {
-    longURL: "http://www.lighthouselabs.ca",
-    userID: "userRandomID",
+  "qw2mei": {
+    longURL: 'http://www.germany.com',
+    userID: "gy71q6",
   },
 
-  "9sm5xk": {
-    longURL: "http://www.google.com",
-    userID: "user2RandomID"
+  "swwb9b": {
+    longURL: 'http://www.example.com',
+    userID: "gy71q6",
   },
 
-  "kjv123": {
-    longURL: "http://www.facebook.com",
-    userID: "user3",
-  },
-
-  "kjv456": {
-    longURL: "http://www.yahoo.com",
-    userID: "user3",
-  },
+  "n3y4cb": {
+    longURL: 'http://www.yahoo.com',
+    userID: '5ff0b9',
+  }
 };
 
 
 
 //users Database Object
 const users = {
-  userRandomID: {
-    id: "userRandomID",
-    email: "user@example.com",
-    password: "purple-monkey-dinosaur",
+  "gy71q6": {
+    id: 'gy71q6',
+    email: 'caroline@gmail.com',
+    hashedPassword: '$2a$10$Q1cCLuLpI5KIjkLgEkTqFOpOc3WEgh8mr3TrRmVdEFAEz7TIDgI96'
   },
-  user2RandomID: {
-    id: "user2RandomID",
-    email: "user2@example.com",
-    password: "dishwasher-funk",
-  },
-  user3: {
-    id: "user3",
-    email: "car@gmail.com",
-    password: "tata",
+
+  "5ff0b9": {
+    id: '5ff0b9',
+    email: 'car@gmail.com',
+    hashedPassword: '$2a$10$ozkixx0Jrgs5A3C7Zc12cOHmR73DGD2j.5xBj4FuBjvQ.LZ9XQquy'
   }
 };
 
@@ -171,6 +163,7 @@ app.get("/urls/:id", (req, res) => {
     return;
   }
 
+  //rendering myUrls page
   const user = users[userId];
   const longURL = userFilteredUrlDatabase[id].longURL;
   const templateVars = {id, longURL, user};
@@ -207,7 +200,7 @@ app.post("/urls/:id/delete", (req, res) => {
     res.send(`This url does not belong to you!`);
     return;
   } else {
-
+    //delete url from database if it exists and if the user is the originator
     delete urlDatabase[id];
     res.redirect("/urls");
   }
@@ -232,11 +225,12 @@ app.get("/u/:id", (req, res) => {
 
 //get route for signup
 app.get("/register", (req, res) => {
-
+  //redirecting user back to /urls if they already logged
   if (req.cookies.user_id) {
     res.redirect("/urls");
     return;
   }
+  //else, sending user to register page
   res.render("user_register", {user: null});
 });
 
@@ -247,20 +241,24 @@ app.post("/register", (req, res) => {
   const id = generateRandomString();
   const email = req.body.email;
   const password = req.body.password;
+  const hashedPassword = bcrypt.hashSync(password, 10);
   const msg1 = "Please enter a valid password or email";
   const msg2 = "email already exists, please enter a valid email";
 
+  //Sending error msg if user enters an empty string
   if (!email || !password) {
     res.status(400).send(msg1);
     return;
   }
   
+  //checking if the user already exists in the users database
   if (findUser(email)) {
     res.status(400).send(msg2);
     return;
   }
 
-  const newUser = {id, email, password};
+  //setting a new user object
+  const newUser = {id, email, hashedPassword};
   users[id] = newUser;
   res.cookie("user_id", id);
   res.redirect("/urls");
@@ -282,17 +280,27 @@ app.get("/login", (req, res) => {
 
 //post route for userlogin
 app.post("/login", (req, res) => {
-  const {email, password} = req.body;
+  const email = req.body.email;
+  const password = req.body.password;
   const user = findUser(email);
 
-  if (user && password === user.password) {
+
+  if (!password || !email || !user) {
+    res.send(`User not found, please enter a valid password or email!`);
+    return;
+  }
+
+  //checking if users plain text password is equal to hashedPassword
+  const passwordCheck = bcrypt.compareSync(req.body.password, user.hashedPassword);
+
+  if (user && passwordCheck) {
     // set cookie for user, using their id
     res.cookie("user_id", user.id);
     res.redirect("/urls");
     return;
   }
-
-  res.status(403).send(`User not found, please enter a valid email or password`);
+  //error message if user enter wrog email or password
+  res.status(403).send(`Please enter a valid email or password`);
 });
 
 
