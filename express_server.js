@@ -86,7 +86,7 @@ const urlsForUser = function(id) {
   let result = {};
   for (const key in urlDatabase) {
     if (urlDatabase[key].userID === id) {
-      result[key] = urlDatabase[key].longURL;
+      result[key] = urlDatabase[key];
     }
   }
 
@@ -97,15 +97,19 @@ const urlsForUser = function(id) {
 
 //my urls page
 app.get("/urls", (req, res) => {
-  //user is signed in and their id is set as cookie
+
   const id = req.cookies.user_id;
-  //if no cookie as been set with user id yet
+
+  //if no id has been set as cookie
   if (!id) {
     res.send(`Please login to view this page`);
+    return;
   }
 
   const user = users[id];
-  const templateVars = {urls: urlDatabase, user};
+  //calling function urlsForUser to retrieve users urls
+  const usersURL = urlsForUser(id);
+  const templateVars = {urls: usersURL, user};
   res.render("urls_index", templateVars);
 });
 
@@ -123,10 +127,9 @@ app.post("/urls", (req, res) => {
   const longURL = req.body.longURL;
   const randomId = generateRandomString();
 
-  //set a new urlDatabase for a user
-  const newUrlDatabase = {longURL, userID: userId}
+  //set a new url for the user in the urlDatabase
+  const newUrlDatabase = {longURL, userID: userId};
   urlDatabase[randomId] = newUrlDatabase;
-  console.log(urlDatabase);
   //update the redirection URL
   res.redirect(`/urls/${randomId}`);
 });
@@ -152,9 +155,24 @@ app.get("/urls/new", (req, res) => {
 //get route for editing url
 app.get("/urls/:id", (req, res) => {
   const userId = req.cookies.user_id;
-  const user = users[userId];
+
+  //Disallowed user from viewing page if not logged in
+  if (!userId) {
+    res.send(`Please login to view this page!`);
+    return;
+  }
+
+  //checking if url belongs to user
+  const userFilteredUrlDatabase = urlsForUser(userId);
   const id = req.params.id;
-  const longURL = urlDatabase[id].longURL;
+
+  if (!userFilteredUrlDatabase[id]) {
+    res.send(`This url does not belong to you!`);
+    return;
+  }
+
+  const user = users[userId];
+  const longURL = userFilteredUrlDatabase[id].longURL;
   const templateVars = {id, longURL, user};
   res.render("urls_show", templateVars);
 });
@@ -178,16 +196,23 @@ app.post("/urls/:id", (req, res) => {
 
 //This route deletes a specified url and redirects the page back to /urls
 app.post("/urls/:id/delete", (req, res) => {
-  const urlToDelete = req.params.id;
+  const userId = req.cookies.user_id;
 
-  //Checking if the url to be deleted exist in the urlDatabase
-  if (urlDatabase[urlToDelete].longURL) {
-    delete urlDatabase[urlToDelete];
+  //checking if url belongs to user
+  const userFilteredUrlDatabase = urlsForUser(userId);
+  const id = req.params.id;
+
+  //Disallowing user to delete url if they are not the owner
+  if (!userFilteredUrlDatabase[id]) {
+    res.send(`This url does not belong to you!`);
+    return;
   } else {
-    res.send(`url not found`);
+
+    delete urlDatabase[id];
+    res.redirect("/urls");
   }
-  res.redirect("/urls");
 });
+
 
 
 
@@ -250,7 +275,7 @@ app.get("/login", (req, res) => {
     res.redirect("/urls");
     return;
   }
-    res.render("user_login", {user: null});
+  res.render("user_login", {user: null});
 });
 
 
@@ -283,17 +308,3 @@ app.post("/logout", (req, res) => {
 app.listen(PORT, () => {
   console.log(`Example app listening on PORT ${PORT}!`);
 });
-
-
-// const urlsForUser = function(id) {
-//   let result = {};
-//   for (const keys in urlDatabase) {
-//     if (keys.userID === id) {
-//       result.url = keys.longURL;
-//     }
-//   }
-
-//   console.log(result);
-//   return result;
-// };
-// urlsForUser('aw48lW');
