@@ -198,11 +198,11 @@ app.post("/urls/:id", (req, res) => {
 app.post("/urls/:id/delete", (req, res) => {
   const userId = req.cookies.user_id;
 
-  //checking if url belongs to user
+  // checking if url belongs to user
   const userFilteredUrlDatabase = urlsForUser(userId);
   const id = req.params.id;
 
-  //Disallowing user to delete url if they are not the owner
+  // Disallowing user to delete url if they are not the owner
   if (!userFilteredUrlDatabase[id]) {
     res.send(`This url does not belong to you!`);
     return;
