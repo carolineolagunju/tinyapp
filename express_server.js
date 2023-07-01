@@ -4,9 +4,16 @@ const app = express();
 const PORT = 8080;
 app.set("view engine", "ejs");
 app.use(express.urlencoded({extended:true}));
-const cookieParser = require('cookie-parser');
-app.use(cookieParser());
 const bcrypt = require('bcryptjs');
+
+const cookieSession = require('cookie-session');
+
+app.use(cookieSession({
+  name: "user_id",
+  keys: ["supersecretkey", "anothersupersecretkey"],
+  //cookie expires in 24 hours
+  maxAge: 24 * 60 * 60 * 1000,
+}));
 
 
 
@@ -90,9 +97,9 @@ const urlsForUser = function(id) {
 //my urls page
 app.get("/urls", (req, res) => {
 
-  const id = req.cookies.user_id;
+  const id = req.session.user_id;
 
-  //if no id has been set as cookie
+  //if no cookie has been set
   if (!id) {
     res.send(`Please login to view this page`);
     return;
@@ -109,8 +116,7 @@ app.get("/urls", (req, res) => {
 
 //post route for creating a new url
 app.post("/urls", (req, res) => {
-  //user is logged in and cookie is set
-  const userId = req.cookies.user_id;
+  const userId = req.session.user_id;
 
   //preventing user from creating new url if they are not logged in
   if (!userId) {
@@ -130,7 +136,7 @@ app.post("/urls", (req, res) => {
 
 //create new url page
 app.get("/urls/new", (req, res) => {
-  const id = req.cookies.user_id;
+  const id = req.session.user_id;
   const user = users[id];
   const templateVars = {urls: urlDatabase, user};
 
@@ -146,7 +152,7 @@ app.get("/urls/new", (req, res) => {
 
 //get route for editing url
 app.get("/urls/:id", (req, res) => {
-  const userId = req.cookies.user_id;
+  const userId = req.session.user_id;
 
   //Disallowed user from viewing page if not logged in
   if (!userId) {
@@ -189,7 +195,7 @@ app.post("/urls/:id", (req, res) => {
 
 //This route deletes a specified url and redirects the page back to /urls
 app.post("/urls/:id/delete", (req, res) => {
-  const userId = req.cookies.user_id;
+  const userId = req.session.user_id;
 
   // checking if url belongs to user
   const userFilteredUrlDatabase = urlsForUser(userId);
@@ -226,7 +232,7 @@ app.get("/u/:id", (req, res) => {
 //get route for signup
 app.get("/register", (req, res) => {
   //redirecting user back to /urls if they already logged
-  if (req.cookies.user_id) {
+  if (req.session.user_id) {
     res.redirect("/urls");
     return;
   }
@@ -260,7 +266,8 @@ app.post("/register", (req, res) => {
   //setting a new user object
   const newUser = {id, email, hashedPassword};
   users[id] = newUser;
-  res.cookie("user_id", id);
+  // setting an encrypted cookie with users id
+  req.session.user_id = id;
   res.redirect("/urls");
 });
 
@@ -268,8 +275,8 @@ app.post("/register", (req, res) => {
 
 //get route for userlogin
 app.get("/login", (req, res) => {
-  // check if "user_id" cookie is already set
-  if (req.cookies.user_id) {
+  // check if encrypted cookie is already set for user
+  if (req.session.user_id) {
     res.redirect("/urls");
     return;
   }
@@ -295,7 +302,7 @@ app.post("/login", (req, res) => {
 
   if (user && passwordCheck) {
     // set cookie for user, using their id
-    res.cookie("user_id", user.id);
+    req.session.user_id = user.id;
     res.redirect("/urls");
     return;
   }
@@ -307,7 +314,8 @@ app.post("/login", (req, res) => {
 
 //user logout route
 app.post("/logout", (req, res) => {
-  res.clearCookie("user_id");
+  //clearing cookie when user signout
+  req.session = null;
   res.redirect("/login");
 });
 
