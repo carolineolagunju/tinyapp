@@ -15,6 +15,8 @@ app.use(cookieSession({
   maxAge: 24 * 60 * 60 * 1000,
 }));
 
+const { getUserByEmail, generateRandomString} = require('./helpers');
+
 
 
 // url Database object
@@ -54,32 +56,6 @@ const users = {
 
 
 
-// function to generate a random ucid
-const generateRandomString = function() {
-  let output = "";
-  const string = "abcdefghijklmnopqrstuvwxyz0123456789";
-  for (let i = 0; i < 6; i++) {
-    output += string.charAt(Math.floor(Math.random() * string.length));
-  }
-  return output;
-};
-
-
-
-// Function to find a user by email
-const findUser = function(userEmail) {
-  let currentUserObj;
-
-  for (const user in users) {
-    if (users[user]["email"] === userEmail) {
-      currentUserObj = users[user];
-    }
-  }
-  return currentUserObj;
-};
-
-
-
 //Function to search for the urls that belongs to a currently logged-in user using their id
 const urlsForUser = function(id) {
   let result = {};
@@ -101,7 +77,11 @@ app.get("/urls", (req, res) => {
 
   //if no cookie has been set
   if (!id) {
-    res.send(`Please login to view this page`);
+    res.send(`<div>
+    <h3>Please login or Register<h3>
+    <a href="/login">Login</a>
+    <a href="/register">Register</a>
+    </div>`);
     return;
   }
 
@@ -121,7 +101,9 @@ app.post("/urls", (req, res) => {
   //preventing user from creating new url if they are not logged in
   if (!userId) {
     res.send(`Please login to access this route`);
+    return;
   }
+  //setting new shortened url
   const longURL = req.body.longURL;
   const randomId = generateRandomString();
 
@@ -178,7 +160,6 @@ app.get("/urls/:id", (req, res) => {
 
 
 
-
 //post route for editing a url resource
 app.post("/urls/:id", (req, res) => {
   const urlToEdit = req.params.id;
@@ -211,7 +192,6 @@ app.post("/urls/:id/delete", (req, res) => {
     res.redirect("/urls");
   }
 });
-
 
 
 
@@ -258,7 +238,7 @@ app.post("/register", (req, res) => {
   }
   
   //checking if the user already exists in the users database
-  if (findUser(email)) {
+  if (getUserByEmail(email, users)) {
     res.status(400).send(msg2);
     return;
   }
@@ -289,7 +269,7 @@ app.get("/login", (req, res) => {
 app.post("/login", (req, res) => {
   const email = req.body.email;
   const password = req.body.password;
-  const user = findUser(email);
+  const user = getUserByEmail(email, users);
 
 
   if (!password || !email || !user) {
@@ -306,7 +286,7 @@ app.post("/login", (req, res) => {
     res.redirect("/urls");
     return;
   }
-  //error message if user enter wrog email or password
+  //error message if user enter wrong email or password
   res.status(403).send(`Please enter a valid email or password`);
 });
 
